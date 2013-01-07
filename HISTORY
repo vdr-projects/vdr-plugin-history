@@ -1,0 +1,19 @@
+VDR Plugin 'history' Revision History
+-------------------------------------
+
+2012-10-19: Version 0.0.3
+
+- Support deleting history items through menu.
+- Support deleting of also target files and recordings if enabled in setup.
+- Support replaying of also non-VDR files using Xineliboutput Media Player.
+- Bug fixes.
+
+2012-10-10: Version 0.0.2
+
+- Rename several classes to avoid class name clashes with other plugins.
+  (Thanks to Rolf Ahrenberg for help with debugging)
+- Bug fixes.
+
+2012-10-07: Version 0.0.1
+
+- Initial revision.
