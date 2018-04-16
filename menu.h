@@ -24,6 +24,9 @@ private:
   eOSState Info();
   eOSState Play();
   eOSState Rewind();
+#if VDRVERSNUM >= 20301
+  const cRecording *GetRecordingRead(cHistoryRecordingMenuItem *Item);
+#endif
   cRecording *GetRecording(cHistoryRecordingMenuItem *Item);
 
 public:

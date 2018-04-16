@@ -71,8 +71,16 @@ void cHistoryLogger::Replaying(const cControl *Control, const char *Name, const 
   if (On) {
      if (FileName) {
         // Check if file is a VDR recording
+        const cRecording *recording;
+#if VDRVERSNUM >= 20301
+        {
+        LOCK_RECORDINGS_READ;
+        recording = Recordings->GetByName(FileName);
+        }
+#else
         cThreadLock RecordingsLock(&Recordings);
-        cRecording *recording = Recordings.GetByName(FileName);
+        recording = Recordings.GetByName(FileName);
+#endif
         // Use name only if not a VDR recording
         replay_history->Ins(new cHistoryRecordingItem(!recording ? Name : NULL, FileName));
         if (replay_history->Count() > HistorySetup.replay_history_size)

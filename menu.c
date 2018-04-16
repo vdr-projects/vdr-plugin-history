@@ -86,8 +86,16 @@ cHistoryRecordingMenuItem::cHistoryRecordingMenuItem(const char *Name, const cha
   name = Name ? strdup(Name) : NULL;
   if (filename) {
      if (!name) {
+        const cRecording *recording;
+#if VDRVERSNUM >= 20301
+        {
+        LOCK_RECORDINGS_READ;
+        recording = Recordings->GetByName(filename);
+        }
+#else
         cThreadLock RecordingsLock(&Recordings);
-        cRecording *recording = Recordings.GetByName(filename);
+        recording = Recordings.GetByName(filename);
+#endif
         if (recording) {
            active = true;
            SetText(recording->Title('\t'));
@@ -151,10 +159,26 @@ void cHistoryMainMenu::SetMenu()
         }
 }
 
+#if VDRVERSNUM >= 20301
+const cRecording *cHistoryMainMenu::GetRecordingRead(cHistoryRecordingMenuItem *Item)
+{
+  LOCK_RECORDINGS_READ;
+  const cRecording *recording = Recordings->GetByName(Item->GetFilename());
+  if (!recording)
+     Skins.Message(mtError, trVDR("Error while accessing recording!"));
+  return recording;
+}
+#endif
+
 cRecording *cHistoryMainMenu::GetRecording(cHistoryRecordingMenuItem *Item)
 {
+#if VDRVERSNUM >= 20301
+  LOCK_RECORDINGS_WRITE;
+  cRecording *recording = Recordings->GetByName(Item->GetFilename());
+#else
   cThreadLock RecordingsLock(&Recordings);
   cRecording *recording = Recordings.GetByName(Item->GetFilename());
+#endif
   if (!recording)
      Skins.Message(mtError, trVDR("Error while accessing recording!"));
   return recording;
@@ -181,7 +205,12 @@ eOSState cHistoryMainMenu::Info()
 {
   cHistoryRecordingMenuItem *ri = (cHistoryRecordingMenuItem *)Get(Current());
   if (ri) {
-     cRecording *recording = GetRecording(ri);
+     const cRecording *recording;
+#if VDRVERSNUM >= 20301
+     recording = GetRecordingRead(ri);
+#else
+     recording = GetRecording(ri);
+#endif
      if (recording && recording->Info()->Title())
         return AddSubMenu(new cHistoryRecordingMenu(recording));
      }

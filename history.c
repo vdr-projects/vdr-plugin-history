@@ -163,8 +163,16 @@ cString cPluginHistory::SVDRPCommand(const char *Command, const char *Option, in
               char *time = item->GetReplayTimeString();
               string = cString::sprintf("%s%s\n", *string, time);
               free(time);
+              const cRecording *recording;
+#if VDRVERSNUM >= 20301
+              {
+              LOCK_RECORDINGS_READ;
+              recording = Recordings->GetByName(item->GetFilename());
+              }
+#else
               cThreadLock RecordingsLock(&Recordings);
-              cRecording *recording = Recordings.GetByName(item->GetFilename());
+              recording = Recordings.GetByName(item->GetFilename());
+#endif
               if (recording)
                  string = cString::sprintf("%s%s\n", *string, recording->Title(' '));
               item = (cHistoryRecordingItem *)item->Next();
